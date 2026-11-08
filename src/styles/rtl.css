@@ -26,3 +26,8 @@
 .num {
   font-variant-numeric: tabular-nums;
 }
+
+/* أسهم تشير مع اتجاه القراءة (من اليمين لليسار) */
+.flip {
+  transform: scaleX(-1);
+}
