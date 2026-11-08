@@ -1,0 +1,320 @@
+.section {
+  margin-bottom: 26px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.statVal {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--lime);
+  line-height: 1.25;
+}
+
+.statLbl {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 10px 0 12px;
+}
+
+/* WHO */
+.whoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.whoItem {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.whoLbl {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.whoVal {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.whoVal[data-ok="true"] {
+  color: var(--lime);
+}
+
+.whoBar {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-3);
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.whoBar span {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--lime);
+  border-radius: 3px;
+}
+
+.whoBar i {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--text-dim);
+}
+
+/* التقويم */
+.calHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.calTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  flex: 1;
+  text-align: center;
+}
+
+.navBtn {
+  width: var(--touch);
+  height: var(--touch);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.navBtn:hover {
+  color: var(--text);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.dow {
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  padding-bottom: 4px;
+}
+
+.day {
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 40px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid transparent;
+}
+
+.day[data-out="true"] {
+  visibility: hidden;
+}
+
+.day[data-today="true"] {
+  border-color: var(--lime);
+}
+
+.day[data-has="true"] {
+  background: var(--surface-2);
+}
+
+.marks {
+  display: flex;
+  gap: 3px;
+  height: 6px;
+}
+
+.mark {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.markS {
+  background: var(--lime);
+}
+
+.markC {
+  background: var(--cyan);
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* التمارين */
+.exList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  min-height: var(--touch);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+}
+
+.exLink:hover {
+  border-color: var(--border-strong);
+}
+
+.exName {
+  font-weight: 700;
+}
+
+.exMeta {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.exLink svg {
+  margin-inline-start: auto;
+  color: var(--text-dim);
+}
+
+/* اليوم */
+.sessCard {
+  background: linear-gradient(160deg, var(--surface), var(--bg));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.sessHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.sessName {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+}
+
+.sessMeta {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.exBlock {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(236, 232, 218, 0.06);
+}
+
+.exBlock:last-of-type {
+  border-bottom: none;
+}
+
+.setLine {
+  font-size: 14px;
+  color: var(--text-dim);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 4px;
+}
+
+.editRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 74px;
+  gap: 8px;
+  align-items: end;
+  margin-top: 8px;
+}
+
+.rirSel {
+  min-height: var(--touch);
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+.cardioRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.chartCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 8px 6px;
+}

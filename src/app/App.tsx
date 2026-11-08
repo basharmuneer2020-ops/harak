@@ -15,6 +15,10 @@ const CustomExercisePage = lazy(
   () => import("../features/library/CustomExercisePage"),
 );
 const HistoryPage = lazy(() => import("../features/history/HistoryPage"));
+const DayPage = lazy(() => import("../features/history/DayPage"));
+const ExerciseHistoryPage = lazy(
+  () => import("../features/history/ExerciseHistoryPage"),
+);
 const MePage = lazy(() => import("../features/profile/MePage"));
 const WorkoutPage = lazy(() => import("../features/workout/WorkoutPage"));
 const SummaryPage = lazy(() => import("../features/workout/SummaryPage"));
@@ -92,7 +96,13 @@ export function App() {
         page = libraryRoute(route.segments);
         break;
       case "history":
-        page = <HistoryPage />;
+        if (route.segments[1] === "day") {
+          page = <DayPage day={route.segments[2] ?? ""} />;
+        } else if (route.segments[1] === "exercise") {
+          page = <ExerciseHistoryPage id={route.segments[2] ?? ""} />;
+        } else {
+          page = <HistoryPage />;
+        }
         break;
       case "me":
         page = <MePage />;

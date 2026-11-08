@@ -6,10 +6,11 @@ import { useActiveMesocycle } from "../../store/selectors";
 import { useApp } from "../../store/useApp";
 import { Button, Notice } from "../../ui/controls";
 import { CycleReportCard } from "./CycleReportCard";
+import { WhoCard } from "../history/WhoCard";
 
 /**
- * إضافات صفحة «اليوم»: اقتراح التفريغ المبكر، وتقرير الدورة عند اكتمالها.
- * (مؤشّرات WHO وتذكير النسخ الاحتياطي تُضاف في المراحل التالية.)
+ * إضافات صفحة «اليوم»: اقتراح التفريغ المبكر وتقرير الدورة (أعلى الصفحة)،
+ * ومؤشّرات WHO مع تسجيل الكارديو (أسفلها).
  */
 export function TodayExtras({ top = false }: { top?: boolean }) {
   const meso = useActiveMesocycle();
@@ -24,7 +25,14 @@ export function TodayExtras({ top = false }: { top?: boolean }) {
     return earlyDeloadSignal(completedSessions(meso, sessions), sessions);
   }, [meso, sessions]);
 
-  if (!top || !meso) return null;
+  if (!top) {
+    return (
+      <div style={{ marginTop: 16 }}>
+        <WhoCard />
+      </div>
+    );
+  }
+  if (!meso) return null;
   const pos = cyclePosition(meso, sessions);
   if (pos.complete) return <CycleReportCard meso={meso} />;
   if (!signal) return null;
