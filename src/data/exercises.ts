@@ -573,10 +573,15 @@ const TRAITS: Record<string, Traits> = {
     secondary: [],
   },
   // السحب الأفقي
+  // التجديف والسحب بمقبضٍ تحت حِمل يدرّب القبضة مساندةً
+  "inverted-row": { secondary: ["rear delt", "lats", "grip"] },
+  "one-arm-dumbbell-row": { secondary: ["rear delt", "lats", "grip"] },
   "bent-over-barbell-row": {
     joints: ["lower_back"],
-    secondary: ["rear delt", "lats", "lower back"],
+    secondary: ["rear delt", "lats", "lower back", "grip"],
   },
+  "seated-cable-row": { secondary: ["rear delt", "lats", "grip"] },
+  "chest-supported-row": { secondary: ["rear delt", "lats", "grip"] },
   "face-pull": {
     isolation: true,
     primary: ["rear delt"],
@@ -596,6 +601,10 @@ const TRAITS: Record<string, Traits> = {
   },
   "weighted-pull-up": {
     joints: ["shoulder", "elbow"],
+    secondary: ["upper back", "rear delt", "grip"],
+  },
+  "lat-pulldown": { secondary: ["upper back", "rear delt", "grip"] },
+  "assisted-pull-up-machine": {
     secondary: ["upper back", "rear delt", "grip"],
   },
   "dead-hang": {
@@ -630,8 +639,14 @@ const TRAITS: Record<string, Traits> = {
   },
   "seated-calf-raise": { isolation: true, primary: ["calves"], secondary: [] },
   // ثني الورك
-  "glute-bridge": { primary: ["glutes"], secondary: ["hamstrings"] },
-  "single-leg-hip-thrust": { primary: ["glutes"], secondary: ["hamstrings"] },
+  "glute-bridge": {
+    primary: ["glutes", "hamstrings"],
+    secondary: ["lower back"],
+  },
+  "single-leg-hip-thrust": {
+    primary: ["glutes", "hamstrings"],
+    secondary: ["lower back"],
+  },
   "nordic-hamstring-curl": {
     joints: ["knee"],
     primary: ["hamstrings"],
@@ -688,15 +703,19 @@ const TRAITS: Record<string, Traits> = {
   "russian-twist": {
     isolation: true,
     joints: ["lower_back"],
-    primary: ["obliques"],
-    secondary: ["abs"],
+    primary: ["abs", "obliques"],
+    secondary: [],
   },
   "cable-woodchopper": {
     isolation: true,
     primary: ["obliques"],
     secondary: ["abs"],
   },
-  "ab-crunch-machine": { isolation: true, primary: ["abs"], secondary: [] },
+  "ab-crunch-machine": {
+    isolation: true,
+    primary: ["abs"],
+    secondary: ["obliques"],
+  },
 };
 
 function build(seed: {

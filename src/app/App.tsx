@@ -16,6 +16,7 @@ const CustomExercisePage = lazy(
 );
 const HistoryPage = lazy(() => import("../features/history/HistoryPage"));
 const MePage = lazy(() => import("../features/profile/MePage"));
+const OnboardingPage = lazy(() => import("../features/profile/OnboardingPage"));
 
 const TAB_IDS: TabId[] = ["today", "program", "library", "history", "me"];
 
@@ -54,6 +55,7 @@ export function App() {
   const route = useRoute();
   const ready = useApp((s) => s.ready);
   const error = useApp((s) => s.error);
+  const hasProfile = useApp((s) => s.profile !== null);
   const head = route.segments[0] ?? "";
 
   useEffect(() => {
@@ -71,10 +73,14 @@ export function App() {
   const active = (TAB_IDS as string[]).includes(head) ? (head as TabId) : null;
 
   let page: ReactNode;
+  let hideTabs = false;
   if (!ready) {
     page = <Loading />;
   } else if (error) {
     page = <Notice tone="danger">{ar.app.storageError}</Notice>;
+  } else if (!hasProfile) {
+    page = <OnboardingPage />;
+    hideTabs = true;
   } else {
     switch (head) {
       case "program":
@@ -95,7 +101,7 @@ export function App() {
   }
 
   return (
-    <Shell active={active ?? "today"}>
+    <Shell active={active ?? "today"} hideTabs={hideTabs}>
       <Suspense fallback={<Loading />}>{page}</Suspense>
     </Shell>
   );
