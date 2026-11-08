@@ -1,0 +1,33 @@
+/* كل مصطلحٍ لاتيني داخل الواجهة العربية يُعزَل باتجاهٍ من اليسار لليمين */
+.term {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  letter-spacing: 0.2px;
+  color: var(--text-dim);
+  background: rgba(236, 232, 218, 0.05);
+  border: 1px solid var(--border);
+  padding: 0.02em 0.42em;
+  border-radius: 6px;
+  vertical-align: middle;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* أرقام وصيغ رقمية مثل «3 × 8–12» تُعرض بترتيبها الصحيح */
+.ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* أسهم تشير مع اتجاه القراءة (من اليمين لليسار) */
+.flip {
+  transform: scaleX(-1);
+}

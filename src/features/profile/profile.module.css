@@ -1,0 +1,163 @@
+.group {
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.lbl {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.option {
+  text-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 11px 14px;
+  min-height: var(--touch);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition:
+    border-color 0.18s,
+    background 0.18s;
+}
+
+.option:hover {
+  border-color: var(--border-strong);
+}
+
+.option[aria-checked="true"] {
+  border-color: var(--lime);
+  background: rgba(205, 251, 62, 0.08);
+}
+
+.optTitle {
+  font-weight: 700;
+  font-size: 15.5px;
+}
+
+.option[aria-checked="true"] .optTitle {
+  color: var(--lime);
+}
+
+.optHint {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+/* الإعداد الأول */
+.ob {
+  min-height: calc(100dvh - 60px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.obTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--touch);
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+
+.dots i {
+  width: 22px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--surface-3);
+}
+
+.dots i[data-on="true"] {
+  background: var(--lime);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(48px, 14vw, 76px);
+  line-height: 0.95;
+}
+
+.brand span {
+  color: var(--lime);
+}
+
+.disclaimer {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-inline-start: 3px solid var(--amber);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 14.5px;
+}
+
+.disclaimer b {
+  display: block;
+  font-family: var(--font-display);
+  color: var(--amber);
+  margin-bottom: 4px;
+}
+
+.obActions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+
+.skipHint {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.err {
+  color: var(--red);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.sumItem {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+}
+
+.sumLbl {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.sumVal {
+  font-weight: 700;
+}
