@@ -43,10 +43,10 @@ harak/                               # جذر المستودع = جذر مشرو
 
 ### 1.2 النشر على `GitHub Pages` (طريق التسليم الأساسي)
 - ملف `.github/workflows/deploy.yml` جاهز: يبني بـ`npm ci && npm run build` وينشر مجلد `dist/` إلى `Pages` عند أي دفعٍ إلى `main` أو `build/**` (ويتجاهل الدفعات التي لا تمسّ ملفات التطبيق).
-- **فعّل `Pages` من أول مرحلة** بالأمر: `gh api repos/basharmuneer2020-ops/harak/pages -X POST -f build_type=workflow` (تجاهل الخطأ إن كان مفعّلاً مسبقاً `409`).
+- **`Pages` مفعَّلٌ مسبقاً** بمصدر `GitHub Actions` من إعدادات المستودع. **لا تستدعِ** `gh api repos/.../pages` — هذا المسار محجوبٌ عبر وكيل الجلسة ويعيد `403`؛ اكتفِ بمراقبة الـ`workflow` عبر `gh run list` و`gh run watch`.
 - اضبط في `vite.config.ts`: `base: '/harak/'`، وفي إعداد `PWA`: `scope: '/harak/'` و`start_url: '/harak/'`، وأي توجيهٍ داخلي يعمل بـ`hash router` حتى لا تنكسر الروابط على `Pages`.
 - بعد كل دفعٍ تحقّق من نجاح الـ`workflow` بـ`gh run list --limit 3` و`gh run watch`؛ إن فشل فأصلحه قبل المتابعة. الرابط النهائي: `https://basharmuneer2020-ops.github.io/harak/`.
-- **إن تعذّر تفعيل `Pages`** (مثلاً مستودع خاصّ على خطة مجانية): تابع البناء، وسلّم عبر `GitHub Release` (1.3)، واكتب في `HANDOFF.md` بوضوح أن المالك يفعّل `Pages` من `Settings → Pages → Source: GitHub Actions` أو يجعل المستودع عامّاً، ثم يشغّل الـ`workflow` يدوياً.
+- **إن فشل النشر** لسببٍ خارج الكود (صلاحيات، بيئة `github-pages`): تابع البناء، وسلّم عبر `GitHub Release` (1.3)، واكتب في `HANDOFF.md` بوضوح ما حدث وأن المالك يعيد تشغيل الـ`workflow` من تبويب `Actions`.
 
 ### 1.3 إصدار `GitHub Release` (تسليمٌ احتياطي دائم)
 - بعد الدمج: `npm run build` ثم `zip -r harak-v1.0.zip dist` ثم `gh release create v1.0.0 harak-v1.0.zip --title "حَراك v1.0" --notes-file docs/HANDOFF.md`.
