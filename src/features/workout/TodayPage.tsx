@@ -85,6 +85,15 @@ export default function TodayPage() {
   const pos = cyclePosition(meso, sessions);
   const template = meso.templates.find((t) => t.id === pick) ?? pos.template;
 
+  if (pos.complete) {
+    return (
+      <Page {...header}>
+        <TodayExtras top />
+        <TodayExtras />
+      </Page>
+    );
+  }
+
   return (
     <Page {...header}>
       <TodayExtras top />

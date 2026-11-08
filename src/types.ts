@@ -151,6 +151,8 @@ export interface Mesocycle {
   status?: "active" | "completed";
   /** فهرس الجلسة التي بدأ عندها التفريغ المبكر (إن قُبِل) */
   earlyDeloadAt?: number;
+  /** عدد الجلسات عند تأجيل اقتراح التفريغ المبكر (لا يُعاد عرضه حتى جلسةٍ جديدة) */
+  deloadDismissedAt?: number;
   completedAt?: number;
 }
 
