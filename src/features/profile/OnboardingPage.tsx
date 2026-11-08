@@ -6,6 +6,7 @@ import type { Profile } from "../../types";
 import { Button } from "../../ui/controls";
 import { Icon } from "../../ui/Icon";
 import { defaultProfile } from "./defaults";
+import { ImportPicker } from "../settings/DataSection";
 import { EquipFields, LevelGoalFields, ScheduleFields } from "./ProfileFields";
 import s from "./profile.module.css";
 
@@ -93,6 +94,15 @@ export default function OnboardingPage() {
               {ar.onboarding.skip}
             </Button>
             <p className={s.skipHint}>{ar.onboarding.skipHint}</p>
+            <div style={{ marginTop: 14 }}>
+              <p className={s.skipHint} style={{ marginBottom: 8 }}>
+                {ar.data.restoreHint}
+              </p>
+              <ImportPicker
+                restoreOnly
+                onDone={() => navigate("/today", { replace: true })}
+              />
+            </div>
           </div>
         </>
       )}
