@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حَراك — مكتبة أنماط الحركة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Changa:wght@500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d0a;
+    --surface:#16170f;
+    --surface-2:#1f2015;
+    --surface-3:#272819;
+    --border:rgba(236,232,218,.09);
+    --border-strong:rgba(236,232,218,.16);
+    --text:#ece8da;
+    --text-dim:#9c9784;
+    --text-faint:#6c6857;
+    --lime:#cdfb3e;
+    --lime-dim:#3a4a14;
+    --amber:#f7b23b;
+    --amber-dim:#4a3712;
+    --cyan:#5cc7dc;
+    --cyan-dim:#15414c;
+    --radius:18px;
+    --radius-sm:11px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{direction:rtl}
+  body{
+    font-family:"Tajawal",system-ui,"Segoe UI",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.7;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* atmosphere */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(900px 600px at 88% -8%, rgba(205,251,62,.10), transparent 60%),
+      radial-gradient(800px 700px at 0% 100%, rgba(247,178,59,.07), transparent 55%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4;
+    background-image:linear-gradient(var(--border) 1px,transparent 1px),
+      linear-gradient(90deg,var(--border) 1px,transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%);
+    -webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%);
+  }
+  .wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:34px 18px 90px}
+
+  /* term: english/latin inline */
+  .term{
+    direction:ltr;unicode-bidi:isolate;display:inline-block;
+    font-family:ui-monospace,"SF Mono","Cascadia Code",Menlo,monospace;
+    font-size:.8em;letter-spacing:.2px;color:var(--text-dim);
+    background:rgba(236,232,218,.05);
+    border:1px solid var(--border);
+    padding:.02em .42em;border-radius:6px;vertical-align:middle;
+  }
+
+  /* header */
+  header{margin-bottom:30px}
+  .kicker{
+    direction:ltr;unicode-bidi:isolate;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:11px;letter-spacing:4px;color:var(--lime);
+    text-transform:uppercase;opacity:.85;margin-bottom:14px;
+  }
+  h1{
+    font-family:"Changa",sans-serif;font-weight:800;
+    font-size:clamp(44px,12vw,82px);line-height:.95;letter-spacing:-1px;
+    color:var(--text);margin-bottom:14px;
+  }
+  h1 .dot{color:var(--lime)}
+  .tagline{font-size:clamp(15px,4vw,17px);color:var(--text-dim);max-width:600px}
+
+  /* controls */
+  .controls{
+    position:sticky;top:0;z-index:20;
+    margin:26px -18px 26px;padding:14px 18px;
+    background:rgba(12,13,10,.82);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-block:1px solid var(--border);
+  }
+  .seg{display:flex;background:var(--surface);border:1px solid var(--border);
+    border-radius:999px;padding:4px;gap:4px}
+  .seg button{
+    font-family:"Tajawal",sans-serif;font-weight:700;font-size:13px;
+    color:var(--text-dim);background:transparent;border:none;cursor:pointer;
+    padding:9px 8px;border-radius:999px;transition:.22s;flex:1;white-space:nowrap;
+  }
+  .seg button.on{background:var(--lime);color:#11140a}
+  .seg button:not(.on):hover{color:var(--text)}
+
+  .filter{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}
+  .filter .lbl{font-size:13px;color:var(--text-faint);font-weight:700}
+  .chip{
+    font-family:"Tajawal",sans-serif;font-weight:500;font-size:13.5px;
+    color:var(--text-dim);background:var(--surface);
+    border:1px solid var(--border);cursor:pointer;
+    padding:7px 15px;border-radius:999px;transition:.2s;display:inline-flex;align-items:center;gap:7px;
+  }
+  .chip svg{width:15px;height:15px}
+  .chip:hover{border-color:var(--border-strong);color:var(--text)}
+  .chip.on{color:var(--text);border-color:transparent}
+  .chip.on[data-k="all"]{background:var(--surface-3);border-color:var(--border-strong)}
+  .chip.on[data-k="bodyweight"]{background:var(--lime-dim);border-color:var(--lime);color:#eafbb8}
+  .chip.on[data-k="free"]{background:var(--amber-dim);border-color:var(--amber);color:#fde6bd}
+  .chip.on[data-k="machine"]{background:var(--cyan-dim);border-color:var(--cyan);color:#cdeef5}
+
+  /* grid + cards */
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr))}
+  .card{
+    text-align:start;width:100%;cursor:pointer;
+    background:linear-gradient(160deg,var(--surface),var(--bg));
+    border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px;transition:transform .22s,border-color .22s,box-shadow .22s;
+    position:relative;overflow:hidden;font-family:inherit;color:inherit;
+    opacity:0;transform:translateY(14px);animation:rise .5s forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:none}}
+  .card:hover{transform:translateY(-3px);border-color:var(--border-strong);
+    box-shadow:0 14px 40px -22px rgba(0,0,0,.8)}
+  .card::after{content:"";position:absolute;inset:0;border-radius:inherit;
+    background:radial-gradient(220px 120px at 90% 0%,rgba(205,251,62,.07),transparent 70%);
+    opacity:0;transition:.22s}
+  .card:hover::after{opacity:1}
+  .card-top{display:flex;align-items:center;gap:13px;margin-bottom:13px}
+  .ic{
+    flex:none;width:46px;height:46px;border-radius:13px;display:grid;place-items:center;
+    background:var(--surface-2);border:1px solid var(--border);color:var(--lime);
+  }
+  .ic svg{width:24px;height:24px}
+  .card-name{font-family:"Changa",sans-serif;font-weight:700;font-size:20px;line-height:1.25}
+  .card-term{margin-top:3px}
+  .muscles{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:15px}
+  .m{font-size:12px;padding:3px 10px;border-radius:999px;font-weight:500}
+  .m.p{background:rgba(205,251,62,.1);color:#d6f78a;border:1px solid rgba(205,251,62,.22)}
+  .m.s{background:rgba(236,232,218,.05);color:var(--text-dim);border:1px solid var(--border)}
+  .card-foot{display:flex;align-items:center;justify-content:space-between;
+    border-top:1px solid var(--border);padding-top:13px}
+  .count{font-size:13px;color:var(--text-faint)}
+  .count b{color:var(--lime);font-weight:700;font-size:15px}
+  .go{font-size:13px;color:var(--text-dim);display:flex;align-items:center;gap:5px;font-weight:700}
+  .go svg{width:15px;height:15px;transform:scaleX(-1)}
+
+  /* muscle view */
+  .region{margin-bottom:26px}
+  .region h2{font-family:"Changa",sans-serif;font-weight:600;font-size:16px;
+    color:var(--text-dim);margin-bottom:13px;display:flex;align-items:center;gap:10px}
+  .region h2::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime)}
+  .mgrid{display:flex;flex-wrap:wrap;gap:10px}
+  .mcard{
+    font-family:inherit;color:inherit;cursor:pointer;text-align:start;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:13px 17px;transition:.2s;
+  }
+  .mcard:hover{border-color:var(--lime);background:var(--surface-2);transform:translateY(-2px)}
+  .mcard .mn{font-weight:700;font-size:15.5px}
+  .mcard .mt{font-size:12px;color:var(--text-faint);margin-top:2px}
+
+  /* overlay */
+  .ov{position:fixed;inset:0;z-index:60;display:none}
+  .ov.open{display:block}
+  .ov-bg{position:absolute;inset:0;background:rgba(6,7,4,.7);backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);animation:fade .25s}
+  @keyframes fade{from{opacity:0}}
+  .sheet{
+    position:absolute;inset-block:0;inset-inline-end:0;width:min(560px,100%);
+    background:var(--bg);border-inline-start:1px solid var(--border);
+    overflow-y:auto;padding:24px 22px 60px;animation:slide .3s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes slide{from{transform:translateX(-26px);opacity:0}}
+  .close{
+    position:sticky;top:0;
+    font-family:inherit;font-weight:700;font-size:14px;color:var(--text-dim);cursor:pointer;
+    background:var(--surface);border:1px solid var(--border);border-radius:999px;
+    padding:8px 16px;display:inline-flex;align-items:center;gap:7px;margin-bottom:8px;
+  }
+  .close:hover{color:var(--text);border-color:var(--border-strong)}
+  .close svg{width:15px;height:15px}
+  .d-head{display:flex;align-items:center;gap:15px;margin:8px 0 22px;clear:both}
+  .d-ic{flex:none;width:62px;height:62px;border-radius:16px;display:grid;place-items:center;
+    background:var(--surface-2);border:1px solid var(--border-strong);color:var(--lime)}
+  .d-ic svg{width:32px;height:32px}
+  .d-name{font-family:"Changa",sans-serif;font-weight:800;font-size:30px;line-height:1.1}
+  .d-term{margin-top:6px}
+  .sec{margin-bottom:24px}
+  .sec-t{font-family:"Changa",sans-serif;font-weight:600;font-size:13px;letter-spacing:.5px;
+    color:var(--text-faint);text-transform:uppercase;margin-bottom:11px}
+  .essence{font-size:16px;color:var(--text)}
+  .cue{background:var(--surface);border:1px solid var(--border);
+    border-inline-start:3px solid var(--lime);border-radius:var(--radius-sm);
+    padding:14px 16px;font-size:15px;color:#e6e2d2}
+  .lane{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+    margin-bottom:12px;overflow:hidden}
+  .lane-h{display:flex;align-items:center;gap:11px;padding:13px 16px;border-bottom:1px solid var(--border)}
+  .lane-ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}
+  .lane-ic svg{width:19px;height:19px}
+  .lane[data-k="bodyweight"] .lane-ic{background:var(--lime-dim);color:var(--lime)}
+  .lane[data-k="free"] .lane-ic{background:var(--amber-dim);color:var(--amber)}
+  .lane[data-k="machine"] .lane-ic{background:var(--cyan-dim);color:var(--cyan)}
+  .lane-name{font-weight:700;font-size:15.5px}
+  .lane-where{font-size:11.5px;color:var(--text-faint);margin-top:1px}
+  .ex{list-style:none;padding:7px 16px 13px}
+  .ex li{display:block;padding:9px 0;
+    border-bottom:1px solid rgba(236,232,218,.05)}
+  .ex li:last-child{border-bottom:none}
+  .ex .bull{flex:none;width:6px;height:6px;border-radius:50%;background:var(--text-faint)}
+  .lane[data-k="bodyweight"] .ex .bull{background:var(--lime)}
+  .lane[data-k="free"] .ex .bull{background:var(--amber)}
+  .lane[data-k="machine"] .ex .bull{background:var(--cyan)}
+  .ex .exar{font-size:14.5px;color:var(--text)}
+  .exrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;row-gap:4px}
+  .exen{margin-inline-start:auto}
+  .srcs{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;padding-inline-start:15px}
+  .src{display:inline-flex;align-items:center;gap:5px;text-decoration:none;
+    font-family:inherit;font-weight:700;font-size:11.5px;
+    color:var(--text-dim);background:var(--surface-2);
+    border:1px solid var(--border-strong);border-radius:999px;padding:4px 11px;transition:.18s}
+  .src svg{width:12px;height:12px}
+  .src:hover{color:var(--text);border-color:var(--lime);transform:translateY(-1px)}
+  .src.primary{background:var(--lime);color:#11140a;border-color:transparent}
+  .src.primary:hover{filter:brightness(1.08);color:#11140a}
+  .vhint{font-size:12px;color:var(--text-faint);margin-top:12px;line-height:1.7}
+  .vhint b{font-weight:700}
+
+  /* muscle detail */
+  .pat-link{
+    width:100%;text-align:start;font-family:inherit;color:inherit;cursor:pointer;
+    display:flex;align-items:center;gap:12px;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:13px 15px;margin-bottom:10px;transition:.2s;
+  }
+  .pat-link:hover{border-color:var(--border-strong);transform:translateY(-2px)}
+  .pat-link .pic{flex:none;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+    background:var(--surface-2);color:var(--lime);border:1px solid var(--border)}
+  .pat-link .pic svg{width:20px;height:20px}
+  .pat-link .pn{font-weight:700;font-size:15px}
+  .pat-link .role{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;margin-inline-start:auto}
+  .role.pr{background:rgba(205,251,62,.12);color:#d6f78a}
+  .role.se{background:rgba(236,232,218,.06);color:var(--text-dim)}
+  .note{background:var(--amber-dim);border:1px solid rgba(247,178,59,.3);border-radius:var(--radius-sm);
+    padding:13px 15px;font-size:14px;color:#f6e2bb;margin-top:6px}
+
+  /* generator */
+  .gen-controls{background:linear-gradient(160deg,var(--surface),var(--bg));
+    border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px;margin-bottom:20px;display:flex;flex-direction:column;gap:18px}
+  .gen-group{display:flex;flex-direction:column;gap:10px}
+  .gen-label{font-family:"Changa",sans-serif;font-weight:600;font-size:12.5px;
+    color:var(--text-faint);letter-spacing:.4px}
+  .gen-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .gchip{font-family:"Tajawal",sans-serif;font-weight:700;font-size:13px;color:var(--text-dim);
+    background:var(--surface);border:1px solid var(--border);cursor:pointer;
+    padding:8px 15px;border-radius:999px;transition:.18s}
+  .gchip:hover{color:var(--text);border-color:var(--border-strong)}
+  .gchip.on{background:var(--lime);color:#11140a;border-color:transparent}
+  .gbtn{width:100%;font-family:"Changa",sans-serif;font-weight:700;font-size:16px;
+    color:#11140a;background:var(--lime);border:none;border-radius:14px;
+    padding:15px;cursor:pointer;transition:.18s}
+  .gbtn:hover{filter:brightness(1.07)}
+  .reps-note{background:var(--surface);border:1px solid var(--border);
+    border-inline-start:3px solid var(--lime);border-radius:var(--radius-sm);
+    padding:13px 16px;font-size:14px;color:#e6e2d2;margin-bottom:14px}
+  .reps-note b{color:var(--lime);font-weight:700}
+  .plan-note{font-size:13px;color:var(--text-faint);margin:2px 0 18px}
+  .session{background:linear-gradient(160deg,var(--surface),var(--bg));
+    border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+  .session-h{font-family:"Changa",sans-serif;font-weight:700;font-size:19px;margin-bottom:3px}
+  .session-sub{font-size:12.5px;color:var(--text-faint);margin-bottom:12px}
+  .slot{padding:12px 0;border-bottom:1px solid rgba(236,232,218,.06)}
+  .slot:last-child{border-bottom:none}
+  .slot-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap;row-gap:5px}
+  .slot-pat{font-family:"Changa",sans-serif;font-size:11.5px;font-weight:600;color:var(--text-dim);
+    flex:none;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:3px 9px}
+  .slot-ex{font-weight:700;font-size:15.5px;color:var(--text)}
+  .badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;flex:none}
+  .badge[data-k="bodyweight"]{background:var(--lime-dim);color:#eafbb8}
+  .badge[data-k="free"]{background:var(--amber-dim);color:#fde6bd}
+  .badge[data-k="machine"]{background:var(--cyan-dim);color:#cdeef5}
+  .swap{margin-inline-start:auto;display:inline-flex;align-items:center;gap:5px;flex:none;
+    font-family:inherit;font-weight:700;font-size:12px;color:var(--text-dim);cursor:pointer;
+    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:999px;
+    padding:5px 12px;transition:.18s}
+  .swap:hover{color:var(--text);border-color:var(--lime)}
+  .swap svg{width:13px;height:13px}
+  .regen{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    font-family:inherit;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;
+    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
+    padding:13px;margin-top:4px;transition:.18s}
+  .regen:hover{border-color:var(--lime)}
+  .regen svg{width:16px;height:16px}
+  .log-session{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    font-family:"Changa",sans-serif;font-weight:700;font-size:14px;color:#11140a;cursor:pointer;
+    background:var(--lime);border:none;border-radius:12px;padding:12px;margin-top:14px;transition:.18s}
+  .log-session:hover{filter:brightness(1.07)}
+  .log-session svg{width:16px;height:16px}
+
+  /* log */
+  .lg-today{font-family:"Changa",sans-serif;font-weight:700;font-size:16px;color:var(--text)}
+  .lg-today b{color:var(--lime);font-weight:700}
+  .lg-item{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:13px;display:flex;flex-direction:column;gap:10px}
+  .lg-item-h{display:flex;align-items:center;gap:9px}
+  .lg-ex{font-weight:700;font-size:15px;color:var(--text)}
+  .lg-del{margin-inline-start:auto;flex:none;width:28px;height:28px;display:grid;place-items:center;
+    border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;transition:.18s}
+  .lg-del:hover{color:#ff9a9a;border-color:#ff9a9a}
+  .lg-del svg{width:14px;height:14px}
+  .lg-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .lg-fields label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--text-faint);font-weight:700}
+  .lg-fields input,.lg-note{font-family:"Tajawal",sans-serif;font-size:14px;color:var(--text);
+    background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 11px;width:100%}
+  .lg-note{font-size:13.5px}
+  .lg-fields input:focus,.lg-note:focus,.lg-select:focus{outline:none;border-color:var(--lime)}
+  .lg-select{width:100%;font-family:"Tajawal",sans-serif;font-weight:700;font-size:14px;color:var(--text);
+    background:var(--surface-3);border:1px solid var(--border-strong);border-radius:11px;padding:12px 14px;cursor:pointer}
+  .lg-hist-t{font-family:"Changa",sans-serif;font-weight:700;font-size:18px;margin:26px 0 14px;color:var(--text)}
+  .lg-session-card{}
+  .lg-session{background:linear-gradient(160deg,var(--surface),var(--bg));border:1px solid var(--border);
+    border-radius:var(--radius);padding:16px;margin-bottom:12px}
+  .lg-session-h{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px}
+  .lg-date{font-family:"Changa",sans-serif;font-weight:700;font-size:15.5px;color:var(--text)}
+  .lg-count{font-size:12px;color:var(--text-faint);margin-top:2px}
+  .lg-remove{margin-inline-start:auto;flex:none;font-family:inherit;font-weight:700;font-size:12px;
+    color:var(--text-dim);background:var(--surface-2);border:1px solid var(--border-strong);
+    border-radius:999px;padding:5px 13px;cursor:pointer;transition:.18s;white-space:nowrap}
+  .lg-remove:hover{color:#ff9a9a;border-color:#ff9a9a}
+  .lg-remove.armed{background:#ff9a9a;color:#2a0d0d;border-color:transparent}
+  .lg-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .lg-list li{font-size:13.5px;color:var(--text-dim);padding-inline-start:12px;
+    border-inline-start:2px solid var(--border-strong);line-height:1.6}
+  .lg-ex2{color:var(--text);font-weight:700}
+  .lg-n{color:var(--text-faint)}
+
+  footer{margin-top:46px;text-align:center;color:var(--text-faint);font-size:13px;
+    border-top:1px solid var(--border);padding-top:22px}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">MOVEMENT · PATTERNS</div>
+    <h1>حَراك<span class="dot">.</span></h1>
+    <p class="tagline">مكتبة أنماط الحركة. درّب كل عضلات جسمك انطلاقاً من الحركة لا من التمرين، ثم نفّذ كل نمطٍ بأي أداةٍ متاحة: وزن جسمك، أوزان حرّة، أو ماكينة.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" id="seg">
+      <button data-v="movement" class="on">الحركات</button>
+      <button data-v="muscle">العضلات</button>
+      <button data-v="generator">المولّد</button>
+      <button data-v="log">السجل</button>
+    </div>
+    <div class="filter" id="filter">
+      <span class="lbl">الأداة:</span>
+    </div>
+  </div>
+
+  <main id="view"></main>
+
+  <footer>نظامٌ مبنيٌّ على أنماط الحركة الأساسية · ثمانية أنماط تغطّي الجسم كاملاً</footer>
+</div>
+
+<div class="ov" id="ov">
+  <div class="ov-bg" id="ovbg"></div>
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+/* ===== Icons ===== */
+const I = {
+  hpush:'<line x1="4" y1="5" x2="4" y2="19"/><line x1="8" y1="12" x2="20" y2="12"/><polyline points="15 7 20 12 15 17"/>',
+  vpush:'<line x1="5" y1="20" x2="19" y2="20"/><line x1="12" y1="16" x2="12" y2="4"/><polyline points="7 9 12 4 17 9"/>',
+  hpull:'<line x1="20" y1="5" x2="20" y2="19"/><line x1="4" y1="12" x2="16" y2="12"/><polyline points="9 7 4 12 9 17"/>',
+  vpull:'<line x1="5" y1="4" x2="19" y2="4"/><line x1="12" y1="8" x2="12" y2="20"/><polyline points="7 15 12 20 17 15"/>',
+  squat:'<polyline points="4 8 12 16 20 8"/><line x1="4" y1="20" x2="20" y2="20"/>',
+  hinge:'<line x1="12" y1="20" x2="12" y2="12"/><line x1="12" y1="12" x2="19" y2="8"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/>',
+  lunge:'<line x1="12" y1="5" x2="6" y2="19"/><line x1="12" y1="5" x2="18" y2="14"/><line x1="4" y1="19" x2="20" y2="19"/>',
+  core:'<line x1="12" y1="4" x2="12" y2="15"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/><line x1="9" y1="20" x2="15" y2="20"/>',
+  bw:'<circle cx="12" cy="6" r="2.4"/><line x1="12" y1="8.4" x2="12" y2="15"/><line x1="7.5" y1="11" x2="16.5" y2="11"/><line x1="12" y1="15" x2="8.5" y2="20"/><line x1="12" y1="15" x2="15.5" y2="20"/>',
+  free:'<line x1="3" y1="12" x2="21" y2="12"/><rect x="2.5" y="8" width="3.2" height="8" rx="1.2"/><rect x="18.3" y="8" width="3.2" height="8" rx="1.2"/>',
+  machine:'<rect x="4" y="4" width="16" height="16" rx="2.2"/><line x1="4" y1="11.5" x2="20" y2="11.5"/><circle cx="12" cy="15.5" r="2.1"/>',
+  arrow:'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+  play:'<circle cx="12" cy="12" r="9"/><polygon points="10 8 16 12 10 16" fill="currentColor" stroke="none"/>',
+  swap:'<polyline points="17 3 21 7 17 11"/><path d="M21 7H9a4 4 0 0 0-4 4"/><polyline points="7 21 3 17 7 13"/><path d="M3 17h12a4 4 0 0 0 4-4"/>',
+  refresh:'<polyline points="21 4 21 10 15 10"/><path d="M20 14a8 8 0 1 1-1.6-6.5L21 10"/>',
+  log:'<rect x="5" y="4" width="14" height="17" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/>',
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  x:'<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>'
+};
+const svg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[k]}</svg>`;
+
+/* ===== Data ===== */
+const EQUIP = {
+  bodyweight:{name:"وزن الجسم", where:"في أي مكان", ic:"bw"},
+  free:{name:"أوزان حرّة", where:"دمبل · بار · كِتل", ic:"free"},
+  machine:{name:"ماكينة", where:"في النادي", ic:"machine"}
+};
+const FILTERS = [
+  {k:"all", name:"الكل"},
+  {k:"bodyweight", name:"وزن الجسم", ic:"bw"},
+  {k:"free", name:"أوزان حرّة", ic:"free"},
+  {k:"machine", name:"ماكينة", ic:"machine"}
+];
+
+const P = [
+  {
+    id:"hpush", icon:"hpush", name:"الدفع الأفقي", term:"horizontal push",
+    essence:"تدفع حِملاً بعيداً عن صدرك أفقيّاً، أو تدفع جسمك بعيداً عن الأرض.",
+    cue:"اشبك لوحَي الكتف للخلف وثبّت الجذع، واجعل المرفقين يميلان قطريّاً لا منفرجين بزاوية قائمة.",
+    primary:["الصدر","الكتف الأمامي","خلفية الذراع"], secondary:["البطن"],
+    lanes:{
+      bodyweight:[{ar:"تمرين الضغط",en:"push-up"},{ar:"الضغط المائل (أسهل)",en:"incline push-up"},{ar:"الضغط المنحدر (أصعب)",en:"decline push-up"}],
+      free:[{ar:"ضغط الدمبل على بنش",en:"dumbbell bench press"},{ar:"ضغط الدمبل على الأرض",en:"dumbbell floor press"},{ar:"ضغط البار المسطّح",en:"barbell bench press"}],
+      machine:[{ar:"ماكينة دفع الصدر",en:"chest press machine"},{ar:"تجميع الصدر بالكيبل",en:"cable chest fly"}]
+    }
+  },
+  {
+    id:"vpush", icon:"vpush", name:"الدفع العمودي", term:"vertical push",
+    essence:"تدفع حِملاً فوق رأسك للأعلى، أو ترفع جسمك في خطٍّ شبه عمودي.",
+    cue:"اعصر الأرداف والبطن كي لا يتقوّس أسفل الظهر، واجعل البار أو الدمبل يمرّ قرب الوجه لا أمامه.",
+    primary:["الكتف الأمامي","الكتف الجانبي","خلفية الذراع"], secondary:["الصدر","البطن"],
+    lanes:{
+      bodyweight:[{ar:"ضغط الهابط",en:"pike push-up"},{ar:"الضغط على الحائط (متقدّم)",en:"wall handstand push-up"}],
+      free:[{ar:"ضغط الكتف بالدمبل فوق الرأس",en:"dumbbell overhead press"},{ar:"الضغط العسكري بالبار",en:"barbell overhead press"},{ar:"ضغط أرنولد",en:"arnold press"}],
+      machine:[{ar:"ماكينة ضغط الكتف",en:"shoulder press machine"}]
+    }
+  },
+  {
+    id:"hpull", icon:"hpull", name:"السحب الأفقي", term:"horizontal pull",
+    essence:"تسحب حِملاً نحو بطنك أو صدرك أفقيّاً، أو تسحب جسمك نحو بارٍ ثابت.",
+    cue:"ابدأ السحب من لوحَي الكتف لا من اليدين، ولا تهزّ الجذع لاكتساب الزخم.",
+    primary:["أعلى الظهر","مقدّمة الذراع"], secondary:["الكتف الخلفي","الجناحية"],
+    lanes:{
+      bodyweight:[{ar:"السحب المقلوب تحت بار أو طاولة",en:"inverted row"}],
+      free:[{ar:"تجديف بالدمبل بذراع واحدة",en:"one-arm dumbbell row"},{ar:"تجديف منحنٍ بالبار",en:"bent-over barbell row"}],
+      machine:[{ar:"تجديف جالس بالكيبل",en:"seated cable row"},{ar:"تجديف مسنود الصدر",en:"chest-supported row"}]
+    }
+  },
+  {
+    id:"vpull", icon:"vpull", name:"السحب العمودي", term:"vertical pull",
+    essence:"تسحب جسمك للأعلى نحو بار، أو تسحب حِملاً من فوق رأسك للأسفل.",
+    cue:"ابدأ بإنزال لوحَي الكتف، ثم اسحب المرفقين للأسفل والخلف نحو جانبيك.",
+    primary:["الجناحية","مقدّمة الذراع"], secondary:["أعلى الظهر","الكتف الخلفي"],
+    lanes:{
+      bodyweight:[{ar:"العقلة",en:"pull-up"},{ar:"العقلة بقبضة معكوسة (أسهل)",en:"chin-up"},{ar:"عقلة بمساعدة مطّاط",en:"band-assisted pull-up"}],
+      free:[{ar:"عقلة مُثقّلة بحزام (متقدّم)",en:"weighted pull-up"}],
+      machine:[{ar:"السحب الأمامي بالكيبل",en:"lat pulldown"},{ar:"ماكينة العقلة المساعِدة",en:"assisted pull-up machine"}]
+    }
+  },
+  {
+    id:"squat", icon:"squat", name:"القرفصاء", term:"squat",
+    essence:"تثني الركبتين والوركين معاً وتنزل بجذعٍ شبه منتصب ثم تقف — حركة الركبة هي الغالبة.",
+    cue:"ادفع الركبتين للخارج باتجاه أصابع القدم، وانزل حتى يوازي الفخذ الأرض إن أمكن، والكعبان ثابتان.",
+    primary:["مقدّمة الفخذ","الأرداف"], secondary:["خلفية الفخذ","البطن","بطّة الساق"],
+    lanes:{
+      bodyweight:[{ar:"قرفصاء بوزن الجسم",en:"bodyweight squat"},{ar:"قرفصاء إلى كرسي",en:"box squat"},{ar:"قرفصاء قفز (قوّة وتفجير)",en:"jump squat"}],
+      free:[{ar:"قرفصاء الكأس بالدمبل",en:"goblet squat"},{ar:"القرفصاء الخلفي بالبار",en:"back squat"},{ar:"القرفصاء الأمامي بالبار",en:"front squat"}],
+      machine:[{ar:"ضغط الأرجل",en:"leg press"},{ar:"قرفصاء هاك",en:"hack squat"},{ar:"تمديد الركبة (عزل)",en:"leg extension"}]
+    }
+  },
+  {
+    id:"hinge", icon:"hinge", name:"ثني الورك", term:"hinge",
+    essence:"تدفع الوركين للخلف بظهرٍ مستقيم ثم تعيدهما للأمام — حركة الورك هي الغالبة والركبة شبه ثابتة.",
+    cue:"الانحناء من مفصل الورك لا من الظهر؛ حافظ على استقامة العمود واشعر بشدّ خلفية الفخذ.",
+    primary:["خلفية الفخذ","الأرداف","أسفل الظهر"], secondary:["أعلى الظهر","القبضة والساعد"],
+    lanes:{
+      bodyweight:[{ar:"جسر الأرداف",en:"glute bridge"},{ar:"رفعة الورك بساق واحدة",en:"single-leg hip thrust"},{ar:"انثناء نوردي (متقدّم)",en:"nordic hamstring curl"}],
+      free:[{ar:"الرفعة الميتة",en:"deadlift"},{ar:"الرفعة الرومانية",en:"romanian deadlift"},{ar:"أرجحة الكِتل",en:"kettlebell swing"}],
+      machine:[{ar:"انثناء خلفية الفخذ",en:"leg curl"},{ar:"تمديد الظهر",en:"back extension"}]
+    }
+  },
+  {
+    id:"lunge", icon:"lunge", name:"الاندفاع لساقٍ واحدة", term:"lunge",
+    essence:"تحمل جسمك على ساقٍ واحدة غالباً، فتبني القوّة والتوازن وتعالج فروق الجانبين.",
+    cue:"أنزل الركبة الخلفية نحو الأرض عموديّاً، واجعل الركبة الأمامية فوق القدم لا متجاوزةً لها كثيراً.",
+    primary:["مقدّمة الفخذ","الأرداف"], secondary:["خلفية الفخذ","بطّة الساق"],
+    lanes:{
+      bodyweight:[{ar:"الطعنة",en:"lunge"},{ar:"القرفصاء البلغارية",en:"bulgarian split squat"},{ar:"الصعود على صندوق",en:"step-up"}],
+      free:[{ar:"طعنة بالدمبل",en:"dumbbell lunge"},{ar:"بلغارية بالدمبل",en:"dumbbell bulgarian split squat"},{ar:"صعود مُثقّل",en:"weighted step-up"}],
+      machine:[{ar:"طعنة على سميث",en:"smith machine lunge"}]
+    }
+  },
+  {
+    id:"core", icon:"core", name:"الجذع والحمل", term:"core + carry",
+    essence:"تثبّت جذعك ضدّ الانحناء والدوران، وتحمل ثقلاً وأنت تمشي — أساس نقل القوّة وحماية الظهر.",
+    cue:"اشدّ البطن كأنك ستُلكَم وتنفّس دون أن يرتخي الثبات، وفي الحمل أبقِ الكتفين للخلف والظهر مستقيماً.",
+    primary:["البطن","الجانبان"], secondary:["أسفل الظهر","القبضة والساعد"],
+    lanes:{
+      bodyweight:[{ar:"البلانك",en:"plank"},{ar:"البلانك الجانبي",en:"side plank"},{ar:"رفع الساقين",en:"leg raise"},{ar:"الحشرة الميتة",en:"dead bug"}],
+      free:[{ar:"مشية المزارع",en:"farmer's carry"},{ar:"الحمل بجانب واحد",en:"suitcase carry"},{ar:"اللفّة الروسية المُثقّلة",en:"russian twist"}],
+      machine:[{ar:"قطع الحطب بالكيبل",en:"cable woodchopper"},{ar:"ماكينة البطن",en:"ab crunch machine"}]
+    }
+  }
+];
+
+const REGIONS = [
+  {name:"الجزء العلوي", muscles:["الصدر","الكتف الأمامي","الكتف الجانبي","الكتف الخلفي","خلفية الذراع","مقدّمة الذراع","الجناحية","أعلى الظهر","القبضة والساعد"]},
+  {name:"الجذع", muscles:["البطن","الجانبان","أسفل الظهر"]},
+  {name:"الجزء السفلي", muscles:["مقدّمة الفخذ","خلفية الفخذ","الأرداف","بطّة الساق"]}
+];
+const MUSCLE_DESC = {
+  "الجناحية":"العضلة العريضة في جانب الظهر",
+  "أعلى الظهر":"شبه المنحرف والمعيّنات",
+  "القبضة والساعد":"قوّة الإمساك والساعد"
+};
+const MUSCLE_EN = {
+  "الصدر":"chest","الكتف الأمامي":"front delt","الكتف الجانبي":"side delt","الكتف الخلفي":"rear delt",
+  "خلفية الذراع":"triceps","مقدّمة الذراع":"biceps","الجناحية":"lats","أعلى الظهر":"upper back",
+  "القبضة والساعد":"grip","البطن":"abs","الجانبان":"obliques","أسفل الظهر":"lower back",
+  "مقدّمة الفخذ":"quads","خلفية الفخذ":"hamstrings","الأرداف":"glutes","بطّة الساق":"calves"
+};
+const MUSCLE_NOTE = {
+  "بطّة الساق":"تُنشّط ثانويّاً في القرفصاء والاندفاع. لتطويرها مباشرةً أضِف رفع السمانة (calf raise) واقفاً أو جالساً.",
+  "القبضة والساعد":"تُبنى تلقائيّاً من السحب والحمل. لتقوية إضافية جرّب التعلّق الثابت على البار (dead hang)."
+};
+
+/* درجة الصعوبة لكل تمرين: 1 مبتدئ، 2 متوسّط، 3 متقدّم */
+const DIFF = {
+  "push-up":2,"incline push-up":1,"decline push-up":3,"dumbbell bench press":2,"dumbbell floor press":1,"barbell bench press":2,"chest press machine":1,"cable chest fly":2,
+  "pike push-up":2,"wall handstand push-up":3,"dumbbell overhead press":2,"barbell overhead press":2,"arnold press":2,"shoulder press machine":1,
+  "inverted row":2,"one-arm dumbbell row":1,"bent-over barbell row":2,"seated cable row":1,"chest-supported row":1,
+  "pull-up":3,"chin-up":2,"band-assisted pull-up":1,"weighted pull-up":3,"lat pulldown":1,"assisted pull-up machine":1,
+  "bodyweight squat":1,"box squat":1,"jump squat":2,"goblet squat":1,"back squat":2,"front squat":3,"leg press":1,"hack squat":2,"leg extension":1,
+  "glute bridge":1,"single-leg hip thrust":2,"nordic hamstring curl":3,"deadlift":2,"romanian deadlift":2,"kettlebell swing":2,"leg curl":1,"back extension":1,
+  "lunge":1,"bulgarian split squat":2,"step-up":1,"dumbbell lunge":2,"dumbbell bulgarian split squat":2,"weighted step-up":2,"smith machine lunge":2,
+  "plank":1,"side plank":1,"leg raise":2,"dead bug":1,"farmer's carry":1,"suitcase carry":1,"russian twist":2,"cable woodchopper":2,"ab crunch machine":1
+};
+
+/* التقسيمات: كل تقسيم عدّة جلسات، وكل جلسة قائمة أنماط (بمعرّفات P) */
+const SPLITS = {
+  full:{ name:"جسم كامل",
+    sessions:[
+      {name:"الجلسة الأولى", slots:["squat","hinge","hpush","hpull","vpush","core"]},
+      {name:"الجلسة الثانية", slots:["lunge","hinge","hpush","hpull","vpull","core"]}
+    ],
+    note:"كرّر الجلستين بالتناوب مرّتين إلى ثلاث مرّاتٍ في الأسبوع." },
+  ul:{ name:"علوي / سفلي",
+    sessions:[
+      {name:"يوم علوي", slots:["hpush","vpush","hpull","vpull","core"]},
+      {name:"يوم سفلي", slots:["squat","hinge","lunge","core"]}
+    ],
+    note:"كرّر (علوي ثم سفلي) مرّتين في الأسبوع = أربع جلسات." },
+  ppl:{ name:"دفع / سحب / أرجل",
+    sessions:[
+      {name:"يوم الدفع", slots:["hpush","vpush","core"]},
+      {name:"يوم السحب", slots:["hpull","vpull","core"]},
+      {name:"يوم الأرجل", slots:["squat","hinge","lunge","core"]}
+    ],
+    note:"شغّلها مرّةً في الأسبوع (ثلاثة أيام) أو مرّتين (ستّة أيام)." }
+};
+
+/* ===== State ===== */
+let view = "movement";
+let equip = "all";
+let gen = { split:"full", equip:new Set(["bodyweight","free","machine"]), level:2, plan:null };
+
+/* سجل التمارين */
+let logs = [];                       // الجلسات المحفوظة
+let draft = { items:[] };            // جلسة اليوم قيد الإنشاء
+let armedDelete = null;             // تأكيد حذف جلسة
+
+/* حفظٌ يبقى بين الجلسات: window.storage إن توفّر، وإلا localStorage، وإلا الذاكرة */
+const DB = {
+  key:"harak_logs", mem:null,
+  useWin:(typeof window!=="undefined" && window.storage && typeof window.storage.get==="function"),
+  async load(){
+    if(this.useWin){
+      try{ const r = await window.storage.get(this.key); return r && r.value ? JSON.parse(r.value) : []; }
+      catch(e){ return []; }
+    }
+    try{ const s = localStorage.getItem(this.key); return s ? JSON.parse(s) : []; }
+    catch(e){ return this.mem || []; }
+  },
+  async save(data){
+    this.mem = data;
+    const json = JSON.stringify(data);
+    if(this.useWin){ try{ await window.storage.set(this.key, json); return; }catch(e){} }
+    try{ localStorage.setItem(this.key, json); }catch(e){}
+  }
+};
+
+const AR_DAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const AR_MONTHS=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const fmtDate = (ts)=>{ const d=new Date(ts); return `${AR_DAYS[d.getDay()]} ${d.getDate()} ${AR_MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+const esc = (s)=> (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+/* خريطة كل التمارين بمعرّف الاسم الإنجليزي (لاختيار السجل) */
+const EX_BY_EN = {};
+P.forEach(p=>["bodyweight","free","machine"].forEach(k=>p.lanes[k].forEach(x=>{ EX_BY_EN[x.en] = {ar:x.ar, en:x.en}; })));
+
+/* ===== Helpers ===== */
+const el = (h)=>{const t=document.createElement("template");t.innerHTML=h.trim();return t.content.firstChild;};
+const term = (en)=>`<span class="term">${en}</span>`;
+const lanesFor = (p)=> equip==="all" ? Object.keys(p.lanes) : (p.lanes[equip]?[equip]:[]);
+const countFor = (p)=> lanesFor(p).reduce((n,k)=>n+p.lanes[k].length,0);
+const ytURL = (q)=> "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
+const gURL  = (q)=> "https://www.google.com/search?q=" + encodeURIComponent(q);
+const SOURCES = [
+  {key:"mw", label:"MuscleWiki", primary:true, url:(x)=>gURL(`${x.en} musclewiki`)},
+  {key:"ax", label:"ATHLEAN-X", url:(x)=>ytURL(`${x.en} athlean-x`)},
+  {key:"jn", label:"Nippard", url:(x)=>ytURL(`${x.en} jeff nippard`)}
+];
+function patternsForMuscle(m){
+  const pr=[], se=[];
+  P.forEach(p=>{ if(p.primary.includes(m)) pr.push(p); else if(p.secondary.includes(m)) se.push(p); });
+  return {pr, se};
+}
+
+/* ===== Filter chips ===== */
+function renderFilter(){
+  const f = document.getElementById("filter");
+  f.querySelectorAll(".chip").forEach(c=>c.remove());
+  FILTERS.forEach(ft=>{
+    const c = el(`<button class="chip ${equip===ft.k?'on':''}" data-k="${ft.k}">${ft.ic?svg(ft.ic):''}<span>${ft.name}</span></button>`);
+    c.onclick = ()=>{ equip = ft.k; renderFilter(); render(); };
+    f.appendChild(c);
+  });
+}
+
+/* ===== Views ===== */
+function render(){
+  document.getElementById("filter").style.display = view==="movement" ? "flex" : "none";
+  if(view==="generator"){ renderGenerator(); return; }
+  if(view==="log"){ renderLog(); return; }
+  const v = document.getElementById("view");
+  v.innerHTML = "";
+  v.appendChild(view==="movement" ? movementView() : muscleView());
+}
+
+function movementView(){
+  const g = el(`<div class="grid"></div>`);
+  P.forEach((p,i)=>{
+    const n = countFor(p);
+    const card = el(`
+      <button class="card" style="animation-delay:${i*45}ms">
+        <div class="card-top">
+          <div class="ic">${svg(p.icon)}</div>
+          <div><div class="card-name">${p.name}</div><div class="card-term">${term(p.term)}</div></div>
+        </div>
+        <div class="muscles">${p.primary.map(m=>`<span class="m p">${m}</span>`).join("")}</div>
+        <div class="card-foot">
+          <span class="count"><b>${n}</b> تمرين${equip!=="all"?` · ${EQUIP[equip].name}`:""}</span>
+          <span class="go">عرض ${svg("arrow")}</span>
+        </div>
+      </button>`);
+    card.onclick = ()=>openPattern(p);
+    g.appendChild(card);
+  });
+  return g;
+}
+
+function muscleView(){
+  const box = el(`<div></div>`);
+  box.appendChild(el(`<p class="tagline" style="margin-bottom:24px">اختر عضلةً لترى الأنماط التي تدرّبها — <span style="color:var(--lime)">أساسي</span> يعني أنها المحرّك الرئيسي، و«مساند» يعني أنها تعمل بدرجةٍ أقل.</p>`));
+  REGIONS.forEach(r=>{
+    const sec = el(`<div class="region"><h2>${r.name}</h2><div class="mgrid"></div></div>`);
+    const grid = sec.querySelector(".mgrid");
+    r.muscles.forEach(m=>{
+      const {pr,se} = patternsForMuscle(m);
+      const mc = el(`<button class="mcard"><div class="mn">${m}</div><div class="mt">${MUSCLE_DESC[m]?MUSCLE_DESC[m]:`${pr.length} نمط أساسي · ${se.length} مساند`}</div></button>`);
+      mc.onclick = ()=>openMuscle(m);
+      grid.appendChild(mc);
+    });
+    box.appendChild(sec);
+  });
+  return box;
+}
+
+/* ===== Generator ===== */
+function buildPlan(){
+  const split = SPLITS[gen.split];
+  const occ = {};
+  const sessions = split.sessions.map(s=>{
+    const slots = s.slots.map(pid=>{
+      const p = P.find(x=>x.id===pid);
+      let cands = [];
+      ["bodyweight","free","machine"].forEach(k=>{
+        if(gen.equip.has(k)) p.lanes[k].forEach(x=>cands.push({ar:x.ar, en:x.en, equip:k, d:(DIFF[x.en]||2)}));
+      });
+      cands.sort((a,b)=>a.d-b.d);
+      let idx = 0;
+      if(cands.length){
+        let pool = cands.filter(c=>c.d<=gen.level);
+        if(!pool.length) pool = cands.slice();
+        pool.sort((a,b)=>(gen.level-a.d)-(gen.level-b.d));  // الأقرب لمستواك أولاً
+        const o = occ[pid]||0; occ[pid] = o+1;
+        idx = cands.indexOf(pool[o % pool.length]);
+      }
+      return {name:p.name, cands, idx};
+    });
+    return {name:s.name, slots};
+  });
+  return {sessions, note:split.note};
+}
+
+function renderGenerator(){
+  const v = document.getElementById("view");
+  const splitChips = Object.entries(SPLITS)
+    .map(([k,s])=>`<button class="gchip ${gen.split===k?'on':''}" data-split="${k}">${s.name}</button>`).join("");
+  const equipChips = [["bodyweight","وزن الجسم","bw"],["free","أوزان حرّة","free"],["machine","ماكينة","machine"]]
+    .map(([k,label,ic])=>`<button class="chip ${gen.equip.has(k)?'on':''}" data-equip="${k}" data-k="${k}">${svg(ic)}<span>${label}</span></button>`).join("");
+  const levelChips = [[1,"مبتدئ"],[2,"متوسّط"],[3,"متقدّم"]]
+    .map(([n,label])=>`<button class="gchip ${gen.level===n?'on':''}" data-level="${n}">${label}</button>`).join("");
+
+  let planHTML;
+  if(gen.plan){
+    planHTML = `
+      <div class="reps-note">لكل تمرين: <b>٣–٤</b> مجموعات × <b>٦–١٢</b> تكراراً، وراحة <b>١–٣</b> دقائق. زِد الوزن أو التكرار تدريجيّاً مع الوقت.</div>
+      <p class="plan-note">${gen.plan.note}</p>
+      ${gen.plan.sessions.map((s,si)=>`
+        <div class="session">
+          <div class="session-h">${s.name}</div>
+          <div class="session-sub">${s.slots.length} تمارين · تمرينٌ واحدٌ لكل نمط</div>
+          ${s.slots.map((slot,li)=>{
+            const ex = slot.cands[slot.idx];
+            return `<div class="slot">
+              <div class="slot-top">
+                <span class="slot-pat">${slot.name}</span>
+                <span class="slot-ex">${ex.ar}</span>${term(ex.en)}
+                <span class="badge" data-k="${ex.equip}">${EQUIP[ex.equip].name}</span>
+                ${slot.cands.length>1?`<button class="swap" data-si="${si}" data-li="${li}" title="بدّل التمرين">${svg("swap")}بدّل</button>`:""}
+              </div>
+              <div class="srcs">${SOURCES.map(src=>`<a class="src ${src.primary?'primary':''}" href="${src.url(ex)}" target="_blank" rel="noopener">${svg("play")}${src.label}</a>`).join("")}</div>
+            </div>`;
+          }).join("")}
+          <button class="log-session" data-si="${si}">${svg("log")} سجّل هذه الجلسة</button>
+        </div>`).join("")}
+      <button class="regen">${svg("refresh")} أعِد التوليد بتمارين أخرى</button>`;
+  } else {
+    planHTML = `<p class="plan-note">اضبط الخيارات بالأعلى، ثم اضغط «ولّد الخطة».</p>`;
+  }
+
+  v.innerHTML = `
+    <div class="gen-controls">
+      <div class="gen-group"><div class="gen-label">التقسيم</div><div class="gen-chips">${splitChips}</div></div>
+      <div class="gen-group"><div class="gen-label">الأداة المتاحة — اختر ما لديك</div><div class="gen-chips">${equipChips}</div></div>
+      <div class="gen-group"><div class="gen-label">المستوى</div><div class="gen-chips">${levelChips}</div></div>
+      <button class="gbtn">${gen.plan?"ولّد من جديد":"ولّد الخطة"}</button>
+    </div>
+    ${planHTML}`;
+
+  v.querySelectorAll("[data-split]").forEach(b=>b.onclick=()=>{ gen.split=b.dataset.split; gen.plan=null; renderGenerator(); });
+  v.querySelectorAll("[data-equip]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.equip;
+    if(gen.equip.has(k)){ if(gen.equip.size>1) gen.equip.delete(k); } else gen.equip.add(k);
+    gen.plan=null; renderGenerator();
+  });
+  v.querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>{ gen.level=+b.dataset.level; gen.plan=null; renderGenerator(); });
+  const gb=v.querySelector(".gbtn"); if(gb) gb.onclick=()=>{ gen.plan=buildPlan(); renderGenerator(); };
+  const rg=v.querySelector(".regen"); if(rg) rg.onclick=()=>{ gen.plan=buildPlan(); renderGenerator(); };
+  v.querySelectorAll(".swap").forEach(b=>b.onclick=()=>{
+    const s=gen.plan.sessions[+b.dataset.si].slots[+b.dataset.li];
+    s.idx=(s.idx+1)%s.cands.length; renderGenerator();
+  });
+  v.querySelectorAll(".log-session").forEach(b=>b.onclick=()=>{
+    const s=gen.plan.sessions[+b.dataset.si];
+    draft={ items: s.slots.map(sl=>{ const e=sl.cands[sl.idx]; return {ar:e.ar, en:e.en, sets:"", reps:"", weight:"", note:""}; }) };
+    setView("log");
+  });
+}
+
+/* ===== Log ===== */
+function exerciseOptions(){
+  return P.map(p=>{
+    const seen=new Set(); const uniq=[];
+    ["bodyweight","free","machine"].forEach(k=>p.lanes[k].forEach(x=>{ if(!seen.has(x.en)){ seen.add(x.en); uniq.push(x); } }));
+    return `<optgroup label="${esc(p.name)}">`+uniq.map(o=>`<option value="${esc(o.en)}">${esc(o.ar)}</option>`).join("")+`</optgroup>`;
+  }).join("");
+}
+
+function renderLog(){
+  const v=document.getElementById("view");
+  const today=fmtDate(Date.now());
+  const items=draft.items;
+
+  const draftRows = items.map((it,i)=>`
+    <div class="lg-item">
+      <div class="lg-item-h">
+        <span class="lg-ex">${esc(it.ar)}</span>${term(it.en)}
+        <button class="lg-del" data-i="${i}" title="إزالة">${svg("x")}</button>
+      </div>
+      <div class="lg-fields">
+        <label>مجموعات<input inputmode="numeric" data-f="sets" data-i="${i}" value="${esc(it.sets)}" placeholder="٣"></label>
+        <label>تكرار<input inputmode="numeric" data-f="reps" data-i="${i}" value="${esc(it.reps)}" placeholder="١٠"></label>
+        <label>وزن (كجم)<input inputmode="decimal" data-f="weight" data-i="${i}" value="${esc(it.weight)}" placeholder="—"></label>
+      </div>
+      <input class="lg-note" data-f="note" data-i="${i}" value="${esc(it.note)}" placeholder="ملاحظة (اختياري)">
+    </div>`).join("");
+
+  const historyHTML = logs.length
+    ? logs.slice().sort((a,b)=>b.ts-a.ts).map(s=>`
+        <div class="lg-session">
+          <div class="lg-session-h">
+            <div><div class="lg-date">${fmtDate(s.ts)}</div><div class="lg-count">${s.items.length} تمارين</div></div>
+            <button class="lg-remove ${armedDelete===s.id?'armed':''}" data-id="${esc(s.id)}">${armedDelete===s.id?"تأكيد الحذف؟":"حذف"}</button>
+          </div>
+          <ul class="lg-list">
+            ${s.items.map(it=>`<li><span class="lg-ex2">${esc(it.ar)}</span> — ${esc(it.sets||"؟")}×${esc(it.reps||"؟")}${it.weight?` · ${esc(it.weight)} كجم`:""}${it.note?` · <span class="lg-n">${esc(it.note)}</span>`:""}</li>`).join("")}
+          </ul>
+        </div>`).join("")
+    : `<p class="plan-note">لا جلسات محفوظة بعد. سجّل جلستك الأولى بالأعلى.</p>`;
+
+  v.innerHTML = `
+    <div class="gen-controls">
+      <div class="lg-today">جلسة اليوم — <b>${today}</b></div>
+      ${draftRows || `<p class="plan-note" style="margin:0">أضف تمارين جلستك من القائمة أدناه، ثم أدخِل المجموعات والتكرار والوزن.</p>`}
+      <div class="lg-add">
+        <select id="exPick" class="lg-select">
+          <option value="">+ أضف تمريناً…</option>
+          ${exerciseOptions()}
+        </select>
+      </div>
+      ${items.length?`<button class="gbtn lg-save">${svg("check")} احفظ الجلسة</button>`:""}
+    </div>
+    <div class="lg-hist-t">السجل السابق</div>
+    ${historyHTML}`;
+
+  const pick=v.querySelector("#exPick");
+  if(pick) pick.onchange=()=>{
+    const en=pick.value;
+    if(en && EX_BY_EN[en]) draft.items.push(Object.assign({}, EX_BY_EN[en], {sets:"",reps:"",weight:"",note:""}));
+    armedDelete=null; renderLog();
+  };
+  v.querySelectorAll(".lg-item input").forEach(inp=>inp.oninput=()=>{
+    const i=+inp.dataset.i, f=inp.dataset.f; if(draft.items[i]) draft.items[i][f]=inp.value;
+  });
+  v.querySelectorAll(".lg-del").forEach(b=>b.onclick=()=>{ draft.items.splice(+b.dataset.i,1); armedDelete=null; renderLog(); });
+  const save=v.querySelector(".lg-save");
+  if(save) save.onclick=()=>{
+    if(!draft.items.length) return;
+    logs.push({ id:"s"+Date.now(), ts:Date.now(), items:draft.items.map(it=>({ar:it.ar,en:it.en,sets:it.sets,reps:it.reps,weight:it.weight,note:it.note})) });
+    DB.save(logs);
+    draft={items:[]}; armedDelete=null; renderLog();
+  };
+  v.querySelectorAll(".lg-remove").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.id;
+    if(armedDelete===id){ logs=logs.filter(s=>s.id!==id); DB.save(logs); armedDelete=null; }
+    else armedDelete=id;
+    renderLog();
+  });
+}
+
+/* ===== Overlay ===== */
+const ov = document.getElementById("ov");
+const sheet = document.getElementById("sheet");
+function showSheet(html){ sheet.innerHTML = html; sheet.scrollTop = 0; ov.classList.add("open"); bindClose(); }
+function bindClose(){ const b = sheet.querySelector(".close"); if(b) b.onclick = closeSheet; }
+function closeSheet(){ ov.classList.remove("open"); }
+document.getElementById("ovbg").onclick = closeSheet;
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
+
+function laneBlock(p,k){
+  const e = EQUIP[k];
+  return `
+    <div class="lane" data-k="${k}">
+      <div class="lane-h">
+        <div class="lane-ic">${svg(e.ic)}</div>
+        <div><div class="lane-name">${e.name}</div><div class="lane-where">${e.where}</div></div>
+      </div>
+      <ul class="ex">
+        ${p.lanes[k].map(x=>`<li>
+          <div class="exrow"><span class="bull"></span><span class="exar">${x.ar}</span><span class="exen">${term(x.en)}</span></div>
+          <div class="srcs">${SOURCES.map(s=>`<a class="src ${s.primary?'primary':''}" href="${s.url(x)}" target="_blank" rel="noopener" title="${s.label} — شرح ${x.en}">${svg("play")}${s.label}</a>`).join("")}</div>
+        </li>`).join("")}
+      </ul>
+    </div>`;
+}
+
+function openPattern(p){
+  const lanes = lanesFor(p);
+  const html = `
+    <button class="close">${svg("x")} إغلاق</button>
+    <div class="d-head">
+      <div class="d-ic">${svg(p.icon)}</div>
+      <div><div class="d-name">${p.name}</div><div class="d-term">${term(p.term)}</div></div>
+    </div>
+    <div class="sec"><div class="sec-t">ما هو هذا النمط؟</div><div class="essence">${p.essence}</div></div>
+    <div class="sec"><div class="sec-t">مفتاح الأداء</div><div class="cue">${p.cue}</div></div>
+    <div class="sec">
+      <div class="sec-t">العضلات المستهدفة</div>
+      <div class="muscles">
+        ${p.primary.map(m=>`<span class="m p">${m}</span>`).join("")}
+        ${p.secondary.map(m=>`<span class="m s">${m}</span>`).join("")}
+      </div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">التمارين والشرح${equip!=="all"?` · ${EQUIP[equip].name} فقط`:""}</div>
+      ${lanes.map(k=>laneBlock(p,k)).join("")}
+      <p class="vhint">لكل تمرين ثلاثة مصادر موثوقة. <b style="color:var(--lime)">MuscleWiki</b> يفتح صفحة التمرين بفيديو الأداء، و<b>ATHLEAN-X</b> و<b>Nippard</b> يفتحان بحثاً في يوتيوب مقصوراً على القناة.</p>
+    </div>`;
+  showSheet(html);
+}
+
+function openMuscle(m){
+  const {pr,se} = patternsForMuscle(m);
+  const link = (p,role)=>`
+    <button class="pat-link" data-id="${p.id}">
+      <div class="pic">${svg(p.icon)}</div>
+      <div><div class="pn">${p.name}</div><div class="card-term">${term(p.term)}</div></div>
+      <span class="role ${role==='pr'?'pr':'se'}">${role==='pr'?'أساسي':'مساند'}</span>
+    </button>`;
+  const html = `
+    <button class="close">${svg("x")} إغلاق</button>
+    <div class="d-head">
+      <div class="d-ic">${svg("core")}</div>
+      <div><div class="d-name">${m}</div>${MUSCLE_EN[m]?`<div class="d-term">${term(MUSCLE_EN[m])}</div>`:''}</div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">تتدرّب من خلال هذه الأنماط</div>
+      ${pr.length?pr.map(p=>link(p,'pr')).join(""):'<p class="essence" style="color:var(--text-dim)">لا يوجد نمطٌ أساسي لهذه العضلة.</p>'}
+      ${se.map(p=>link(p,'se')).join("")}
+    </div>
+    ${MUSCLE_NOTE[m]?`<div class="note">${MUSCLE_NOTE[m]}</div>`:''}`;
+  showSheet(html);
+  sheet.querySelectorAll(".pat-link").forEach(b=>{
+    b.onclick = ()=>{ const p = P.find(x=>x.id===b.dataset.id); openPattern(p); };
+  });
+}
+
+/* ===== Tabs ===== */
+function setView(v){
+  view=v;
+  document.getElementById("seg").querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.dataset.v===v));
+  render();
+}
+document.getElementById("seg").querySelectorAll("button").forEach(b=> b.onclick=()=>setView(b.dataset.v) );
+
+/* ===== Init ===== */
+renderFilter();
+render();
+DB.load().then(d=>{ logs = Array.isArray(d) ? d : []; if(view==="log") renderLog(); });
+</script>
+</body>
+</html>
