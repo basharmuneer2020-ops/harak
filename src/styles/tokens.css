@@ -1,0 +1,38 @@
+/* الهوية البصرية — منقولة حرفياً من النموذج الأولي (reference/harak-movement-library.html) */
+:root {
+  --bg: #0c0d0a;
+  --surface: #16170f;
+  --surface-2: #1f2015;
+  --surface-3: #272819;
+  --border: rgba(236, 232, 218, 0.09);
+  --border-strong: rgba(236, 232, 218, 0.16);
+  --text: #ece8da;
+  --text-dim: #9c9784;
+  --text-faint: #6c6857;
+  --lime: #cdfb3e; /* اللون المميّز والأزرار الأساسية */
+  --lime-dim: #3a4a14;
+  --amber: #f7b23b; /* الأوزان الحرّة والتحذيرات */
+  --amber-dim: #4a3712;
+  --cyan: #5cc7dc; /* الماكينات */
+  --cyan-dim: #15414c;
+  --radius: 18px;
+  --radius-sm: 11px;
+
+  /* رموز مشتقّة (إضافات لا تغيّر الهوية) */
+  --on-lime: #11140a;
+  --lime-soft: #d6f78a;
+  --amber-soft: #fde6bd;
+  --cyan-soft: #cdeef5;
+  --red: #ff9a9a;
+  --red-dim: #4a1f1f;
+  --font-display: "Changa", system-ui, sans-serif;
+  --font-body: "Tajawal", system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --touch: 44px;
+  --tabbar-h: 66px;
+  --page-max: 960px;
+  --gutter: 18px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}

@@ -1,0 +1,10 @@
+dist
+dev-dist
+coverage
+node_modules
+reference
+playwright-report
+test-results
+package-lock.json
+CLAUDE.md
+public
