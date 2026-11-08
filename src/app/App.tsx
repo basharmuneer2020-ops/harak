@@ -16,6 +16,8 @@ const CustomExercisePage = lazy(
 );
 const HistoryPage = lazy(() => import("../features/history/HistoryPage"));
 const MePage = lazy(() => import("../features/profile/MePage"));
+const WorkoutPage = lazy(() => import("../features/workout/WorkoutPage"));
+const SummaryPage = lazy(() => import("../features/workout/SummaryPage"));
 const OnboardingPage = lazy(() => import("../features/profile/OnboardingPage"));
 
 const TAB_IDS: TabId[] = ["today", "program", "library", "history", "me"];
@@ -94,6 +96,14 @@ export function App() {
         break;
       case "me":
         page = <MePage />;
+        break;
+      case "workout":
+        if (route.segments[1] === "summary") {
+          page = <SummaryPage id={route.segments[2] ?? ""} />;
+        } else {
+          page = <WorkoutPage />;
+          hideTabs = true;
+        }
         break;
       default:
         page = <TodayPage />;
